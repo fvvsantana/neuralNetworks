@@ -1,3 +1,7 @@
 # Neural Networks
 
-A bunch of exercises solved in a subject about Neural Networks. Year 2020.
+This repository contains exercises that I solved in a subject about Neural
+Networks in 2020.
+
+The covered concepts/algorithms were:
+* Perceptron.
