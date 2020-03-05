@@ -1,2 +1,3 @@
-# neuralNetworks
-A bunch of exercises solved in a subject of Neural Networks.
+# Neural Networks
+
+A bunch of exercises solved in a subject about Neural Networks. Year 2020.
