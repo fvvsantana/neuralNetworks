@@ -21,13 +21,16 @@ def trainPerceptron(df, minLearningRate = 0.005, maxIter = 100):
 
     # Generate random weights and biases:
     radius = 5
-    neuron.weights = [rd.uniform(-radius, radius), rd.uniform(-radius,radius)]
+    neuron.weights = list()
+    for i in range(df.shape[1] - 1):
+        neuron.weights.append(rd.uniform(-radius, radius))
+
                     #rd.uniform(-radius, radius), rd.uniform(-radius,radius)]
     neuron.bias = rd.uniform(-radius, radius)
 
     while (learningRate > minLearningRate) and (iter < maxIter):
         # Loop over dataset once, update weights and return accuracy
-        acc = iterateNeuronTraining(df, neuron)
+        acc = iteratePerceptronTraining(df, neuron)
 
         # Update learningRate
         del lastAccuracies[0]
@@ -42,11 +45,11 @@ def trainPerceptron(df, minLearningRate = 0.005, maxIter = 100):
     return neuron, errorEvolution
 
 # Loop over dataset once, update weights and return accuracy
-def iterateNeuronTraining(df, neuron, weightUpdateStep = 1):
+def iteratePerceptronTraining(df, neuron, weightUpdateStep = 1):
     hits = 0
     for index, row in df.iterrows():
         # Classify instance
-        inputs = (row.V1, row.V2)
+        inputs = row[0:-1]
         neuronOutput = neuron.run(inputs)
         if neuronOutput > 0.5:
             classification = 2
@@ -54,9 +57,9 @@ def iterateNeuronTraining(df, neuron, weightUpdateStep = 1):
             classification = 1
 
         # Update weights
-        trueClass = row.V3
+        trueClass = row[-1]
         for i in range(len(neuron.weights)):
-            neuron.weights[i] += weightUpdateStep * inputs[i] * (trueClass - (neuronOutput + 1))
+            neuron.weights[i] += weightUpdateStep * inputs[i] * (trueClass - classification)
 
         # Update hits
         if trueClass == classification:
@@ -79,13 +82,15 @@ def trainAdaline(df, minLearningRate = 0.005, maxIter = 100):
 
     # Generate random weights and biases:
     radius = 5
-    neuron.weights = [rd.uniform(-radius, radius), rd.uniform(-radius,radius)]
-                    #rd.uniform(-radius, radius), rd.uniform(-radius,radius)]
+    neuron.weights = list()
+    for i in range(df.shape[1] - 1):
+        neuron.weights.append(rd.uniform(-radius, radius))
+
     neuron.bias = rd.uniform(-radius, radius)
 
     while (learningRate > minLearningRate) and (iter < maxIter):
         # Loop over dataset once, update weights and return accuracy
-        acc = iterateNeuronTraining(df, neuron)
+        acc = iterateAdalineTraining(df, neuron)
 
         # Update learningRate
         del lastAccuracies[0]
@@ -98,6 +103,29 @@ def trainAdaline(df, minLearningRate = 0.005, maxIter = 100):
         iter += 1
 
     return neuron, errorEvolution
+
+# Loop over dataset once, update weights and return accuracy
+def iterateAdalineTraining(df, neuron, weightUpdateStep = 1):
+    hits = 0
+    for index, row in df.iterrows():
+        # Classify instance
+        inputs = row[0:-1]
+        neuronOutput = neuron.run(inputs)
+        if neuronOutput > 0.5:
+            classification = 2
+        else:
+            classification = 1
+
+        # Update weights
+        trueClass = row[-1]
+        for i in range(len(neuron.weights)):
+            neuron.weights[i] += weightUpdateStep * inputs[i] * (trueClass - (neuronOutput + 1))
+
+        # Update hits
+        if trueClass == classification:
+            hits += 1
+
+    return hits/len(df)
 
 def main():
     # Dataset 1
@@ -132,6 +160,31 @@ def main():
     plt.title('Dataset1 - Adaline')
     plt.show()
 
+    # Dataset 2
+    # Read csv file to dataframe
+    df = pd.read_csv('../data/Aula3-dataset_2.csv')
+
+    # Perceptron
+    # Training
+    neuron, errorEvolution = trainPerceptron(df)
+
+    # Plot error evolution
+    plt.plot(errorEvolution)
+    plt.xlabel('Iteration')
+    plt.ylabel('Relative error')
+    plt.title('Dataset2 - Perceptron')
+    plt.show()
+
+    # Adaline
+    # Training
+    neuron, errorEvolution = trainAdaline(df)
+
+    # Plot error evolution
+    plt.plot(errorEvolution)
+    plt.xlabel('Iteration')
+    plt.ylabel('Relative error')
+    plt.title('Dataset2 - Adaline')
+    plt.show()
 
 
 if __name__ == '__main__':
