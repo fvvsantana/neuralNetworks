@@ -4,70 +4,94 @@ import inc.activationFunctions as af
 from inc.perceptron import Perceptron
 from inc.adaline import Adaline
 
-'''
-    This is a really dumb training where it generates random weights and biases
-    and picks the best combination.
-
-'''
-def trainNeuron(df, maxError = 0.4, maxIter = 1000):
+def trainPerceptron(df, minLearningRate = 0.001, maxIter = 1000):
     neuron = Perceptron()
-    neuron.af = af.limiar
     acc = 0
     iter = 0
-    range = 5
-    while (1 - acc > maxError) and (iter < maxIter):
-        # Generate random weights and biases:
-        neuron.weights = (rd.uniform(-range, range), rd.uniform(-range,range),
-                        rd.uniform(-range, range), rd.uniform(-range,range))
-        neuron.bias = rd.uniform(-range, range)
+    learningRate = 1
+    lastAccuracies = [0,1,0,1,0,1]
 
-        # Calculate accuracy
-        acc = calculateAccuracy(df, neuron)
+    # Track error during training
+    errorEvolution = list()
+
+    # Generate random weights and biases:
+    range = 5
+    neuron.weights = [rd.uniform(-range, range), rd.uniform(-range,range)]
+                    #rd.uniform(-range, range), rd.uniform(-range,range)]
+    neuron.bias = rd.uniform(-range, range)
+
+    while (learningRate > minLearningRate) and (iter < maxIter):
+        # Loop over dataset once, update weights and return accuracy
+        acc = iteratePerceptronTraining(df, neuron)
+
+        # Update learningRate
+        del lastAccuracies[0]
+        lastAccuracies.append(acc)
+        learningRate = max(lastAccuracies) - min(lastAccuracies)
+
+        # Update error
+        errorEvolution.append(1-acc)
+        # Update iteration counter
         iter += 1
 
-    return {'weights': tuple(neuron.weights), 'bias': neuron.bias, 'acc': acc, 'iter': iter}
+    return {'neuron': neuron, 'errorEvolution': errorEvolution}
 
-# Calculate accuracy of neuron classification over the dataset
-def calculateAccuracy(df, neuron):
-    acum = 0
+# Loop over dataset once, update weights and return accuracy
+def iteratePerceptronTraining(df, neuron, weightUpdateStep = 1):
+    hits = 0
     for index, row in df.iterrows():
-        inputs = (row.V1, row.V2, row.V3, row.V4)
-        classification = classifyFromNeuron(inputs, neuron)
-        #print(classification)
+        # Classify instance
+        inputs = (row.V1, row.V2)
+        neuronOutput = neuron.run(inputs)
+        if neuronOutput > 0.5:
+            classification = 2
+        else:
+            classification = 1
 
-        trueClass = row.V5
-        if trueClass == (classification + 1):
-            acum += 1
-    return acum/len(df)
+        # Update weights
+        trueClass = row.V3
+        for i in range(len(neuron.weights)):
+            neuron.weights[i] += weightUpdateStep * inputs[i] * (trueClass - (neuronOutput + 1))
 
-# Auxiliar function to classify inputs using a single neuron
-def classifyFromNeuron(inputs, neuron):
-    neuronOutput = neuron.run(inputs)
-    if neuronOutput > 0.5:
-        return 1
-    else:
-        return 0
+        # Update hits
+        if trueClass == classification:
+            hits += 1
+
+    return hits/len(df)
 
 def main():
-    per = Perceptron()
-    ada = Adaline()
-
-
-
-
-    '''
     # Read csv file to dataframe
-    df = pd.read_csv("Aula2-exec2.csv")
+    df = pd.read_csv('../data/Aula3-dataset_1.csv')
 
-    # Find good parameters
-    result = trainNeuron(df, 0.005)
+    # Dataset 1
 
-    # Print results
-    print('Accuracy:', result['acc'])
-    print('Number of iterations:', result['iter'])
-    print('Weights:', result['weights'])
-    print('Bias:', result['bias'])
-    '''
+    # Perceptron
+    # Training
+    results = trainPerceptron(df)
+    print('Weights:', results['neuron'].weights)
+    print('Bias:', results['neuron'].bias)
+    print('Iterations:', len(results['errorEvolution']))
+    print('Error evolution:', results['errorEvolution'])
+
+
+    # Plot error evolution
+
+    # Adaline
+    # Training
+
+    # Plot error evolution
+
+    # Dataset 2
+
+    # Perceptron
+    # Training
+
+    # Plot error evolution
+
+    # Adaline
+    # Training
+
+    # Plot error evolution
 
 
 if __name__ == '__main__':
