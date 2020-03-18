@@ -1,24 +1,29 @@
 import pandas as pd
 import random as rd
+import matplotlib.pyplot as plt
+
 import inc.activationFunctions as af
 from inc.perceptron import Perceptron
 from inc.adaline import Adaline
 
-def trainPerceptron(df, minLearningRate = 0.001, maxIter = 1000):
+def trainPerceptron(df, minLearningRate = 0.005, maxIter = 100):
     neuron = Perceptron()
     acc = 0
     iter = 0
     learningRate = 1
-    lastAccuracies = [0,1,0,1,0,1]
+    lastAccuracies = list()
+    for i in range(10):
+        lastAccuracies.append(0)
+        lastAccuracies.append(1)
 
     # Track error during training
     errorEvolution = list()
 
     # Generate random weights and biases:
-    range = 5
-    neuron.weights = [rd.uniform(-range, range), rd.uniform(-range,range)]
-                    #rd.uniform(-range, range), rd.uniform(-range,range)]
-    neuron.bias = rd.uniform(-range, range)
+    radius = 5
+    neuron.weights = [rd.uniform(-radius, radius), rd.uniform(-radius,radius),
+                    rd.uniform(-radius, radius), rd.uniform(-radius,radius)]
+    neuron.bias = rd.uniform(-radius, radius)
 
     while (learningRate > minLearningRate) and (iter < maxIter):
         # Loop over dataset once, update weights and return accuracy
@@ -34,14 +39,14 @@ def trainPerceptron(df, minLearningRate = 0.001, maxIter = 1000):
         # Update iteration counter
         iter += 1
 
-    return {'neuron': neuron, 'errorEvolution': errorEvolution}
+    return neuron, errorEvolution
 
 # Loop over dataset once, update weights and return accuracy
 def iteratePerceptronTraining(df, neuron, weightUpdateStep = 1):
     hits = 0
     for index, row in df.iterrows():
         # Classify instance
-        inputs = (row.V1, row.V2)
+        inputs = (row.V1, row.V2, row.V3, row.V4)
         neuronOutput = neuron.run(inputs)
         if neuronOutput > 0.5:
             classification = 2
@@ -49,7 +54,7 @@ def iteratePerceptronTraining(df, neuron, weightUpdateStep = 1):
             classification = 1
 
         # Update weights
-        trueClass = row.V3
+        trueClass = row.V5
         for i in range(len(neuron.weights)):
             neuron.weights[i] += weightUpdateStep * inputs[i] * (trueClass - (neuronOutput + 1))
 
@@ -60,33 +65,20 @@ def iteratePerceptronTraining(df, neuron, weightUpdateStep = 1):
     return hits/len(df)
 
 def main():
-    # Read csv file to dataframe
-    df = pd.read_csv('../data/Aula3-dataset_1.csv')
-
-    # Dataset 1
-
-    # Perceptron
-    # Training
-    results = trainPerceptron(df)
-    print('Weights:', results['neuron'].weights)
-    print('Bias:', results['neuron'].bias)
-    print('Iterations:', len(results['errorEvolution']))
-    print('Error evolution:', results['errorEvolution'])
-
-
-    # Plot error evolution
-
-    # Adaline
-    # Training
-
-    # Plot error evolution
-
     # Dataset 2
+    # Read csv file to dataframe
+    df = pd.read_csv('../data/Aula3-dataset_2.csv')
 
     # Perceptron
     # Training
+    neuron, errorEvolution = trainPerceptron(df)
 
     # Plot error evolution
+    plt.plot(errorEvolution)
+    plt.xlabel('Iteration')
+    plt.ylabel('Relative error')
+    plt.title('Dataset2 - Perceptron')
+    plt.show()
 
     # Adaline
     # Training
