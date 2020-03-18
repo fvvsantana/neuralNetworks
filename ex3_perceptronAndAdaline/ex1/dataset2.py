@@ -27,7 +27,7 @@ def trainPerceptron(df, minLearningRate = 0.005, maxIter = 100):
 
     while (learningRate > minLearningRate) and (iter < maxIter):
         # Loop over dataset once, update weights and return accuracy
-        acc = iteratePerceptronTraining(df, neuron)
+        acc = iterateNeuronTraining(df, neuron)
 
         # Update learningRate
         del lastAccuracies[0]
@@ -42,7 +42,7 @@ def trainPerceptron(df, minLearningRate = 0.005, maxIter = 100):
     return neuron, errorEvolution
 
 # Loop over dataset once, update weights and return accuracy
-def iteratePerceptronTraining(df, neuron, weightUpdateStep = 1):
+def iterateNeuronTraining(df, neuron, weightUpdateStep = 1):
     hits = 0
     for index, row in df.iterrows():
         # Classify instance
@@ -64,6 +64,42 @@ def iteratePerceptronTraining(df, neuron, weightUpdateStep = 1):
 
     return hits/len(df)
 
+def trainAdaline(df, minLearningRate = 0.005, maxIter = 100):
+    neuron = Adaline()
+    acc = 0
+    iter = 0
+    learningRate = 1
+    lastAccuracies = list()
+    for i in range(10):
+        lastAccuracies.append(0)
+        lastAccuracies.append(1)
+
+    # Track error during training
+    errorEvolution = list()
+
+    # Generate random weights and biases:
+    radius = 5
+    neuron.weights = [rd.uniform(-radius, radius), rd.uniform(-radius,radius),
+                    rd.uniform(-radius, radius), rd.uniform(-radius,radius)]
+    neuron.bias = rd.uniform(-radius, radius)
+
+    while (learningRate > minLearningRate) and (iter < maxIter):
+        # Loop over dataset once, update weights and return accuracy
+        acc = iterateNeuronTraining(df, neuron)
+
+        # Update learningRate
+        del lastAccuracies[0]
+        lastAccuracies.append(acc)
+        learningRate = max(lastAccuracies) - min(lastAccuracies)
+
+        # Update error
+        errorEvolution.append(1-acc)
+        # Update iteration counter
+        iter += 1
+
+    return neuron, errorEvolution
+
+
 def main():
     # Dataset 2
     # Read csv file to dataframe
@@ -82,8 +118,14 @@ def main():
 
     # Adaline
     # Training
+    neuron, errorEvolution = trainAdaline(df)
 
     # Plot error evolution
+    plt.plot(errorEvolution)
+    plt.xlabel('Iteration')
+    plt.ylabel('Relative error')
+    plt.title('Dataset2 - Adaline')
+    plt.show()
 
 
 if __name__ == '__main__':
