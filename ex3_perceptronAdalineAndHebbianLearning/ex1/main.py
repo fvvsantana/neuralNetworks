@@ -1,6 +1,7 @@
 import pandas as pd
 import random as rd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 import inc.activationFunctions as af
 from inc.perceptron import Perceptron
@@ -60,6 +61,8 @@ def iteratePerceptronTraining(df, neuron, weightUpdateStep = 1):
         trueClass = row[-1]
         for i in range(len(neuron.weights)):
             neuron.weights[i] += weightUpdateStep * inputs[i] * (trueClass - classification)
+        neuron.bias += weightUpdateStep * (trueClass - classification)
+
 
         # Update hits
         if trueClass == classification:
@@ -120,6 +123,7 @@ def iterateAdalineTraining(df, neuron, weightUpdateStep = 1):
         trueClass = row[-1]
         for i in range(len(neuron.weights)):
             neuron.weights[i] += weightUpdateStep * inputs[i] * (trueClass - (neuronOutput + 1))
+        neuron.bias += weightUpdateStep * (trueClass - classification)
 
         # Update hits
         if trueClass == classification:
@@ -127,26 +131,27 @@ def iterateAdalineTraining(df, neuron, weightUpdateStep = 1):
 
     return hits/len(df)
 
+
 def main():
     # Dataset 1
     # Read csv file to dataframe
     df = pd.read_csv('../data/Aula3-dataset_1.csv')
 
+    sns.pairplot(df, hue=df.columns[-1])
+    plt.title('Dataset1 - True')
+    plt.show(block=True)
 
     # Perceptron
     # Training
     neuron, errorEvolution = trainPerceptron(df)
-    #print('Weights:', neuron.weights)
-    #print('Bias:', neuron.bias)
-    #print('Iterations:', len(errorEvolution))
-    #print('Error evolution:', errorEvolution)
 
     # Plot error evolution
     plt.plot(errorEvolution)
     plt.xlabel('Iteration')
     plt.ylabel('Relative error')
     plt.title('Dataset1 - Perceptron')
-    plt.show()
+    plt.show(block=True)
+
 
 
     # Adaline
@@ -158,7 +163,7 @@ def main():
     plt.xlabel('Iteration')
     plt.ylabel('Relative error')
     plt.title('Dataset1 - Adaline')
-    plt.show()
+    plt.show(block=True)
 
     # Dataset 2
     # Read csv file to dataframe
@@ -173,7 +178,7 @@ def main():
     plt.xlabel('Iteration')
     plt.ylabel('Relative error')
     plt.title('Dataset2 - Perceptron')
-    plt.show()
+    plt.show(block=True)
 
     # Adaline
     # Training
@@ -184,7 +189,9 @@ def main():
     plt.xlabel('Iteration')
     plt.ylabel('Relative error')
     plt.title('Dataset2 - Adaline')
-    plt.show()
+    plt.show(block=True)
+
+
 
 
 if __name__ == '__main__':
