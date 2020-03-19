@@ -4,7 +4,7 @@ import inc.activationFunctions as af
 
 class Adaline(Neuron):
     def __init__(self, weights = None, bias = None):
-        super().__init__(weights, bias, af.sigmoid)
+        super().__init__(weights, bias, af.linear)
 
     def run(self, inputs):
         # Put bias to arrays

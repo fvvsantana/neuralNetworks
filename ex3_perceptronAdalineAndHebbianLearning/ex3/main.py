@@ -36,12 +36,15 @@ def hebbianTraining(df, minLearningRate = 0.001, maxIter = 100):
     clusteringEvolution = list()
 
     # Generate random weights and biases:
+    '''
     radius = 0.5
     neuron.weights = list()
     for i in range(df.shape[1]):
         neuron.weights.append(rd.uniform(-radius, radius))
-
     neuron.bias = rd.uniform(-radius, radius)
+    '''
+    neuron.weights = [-0.5, 1]
+    neuron.bias = 0
 
     '''
     # Initialize weight and bias
@@ -50,6 +53,7 @@ def hebbianTraining(df, minLearningRate = 0.001, maxIter = 100):
     '''
 
     averageByFeature = df.mean().values.tolist()
+    print('ABF:', averageByFeature)
 
     while (learningRate > minLearningRate) and (iter < maxIter):
         # Loop over dataset once, update weights and return accuracy
@@ -65,8 +69,6 @@ def hebbianTraining(df, minLearningRate = 0.001, maxIter = 100):
         # Update iteration counter
         iter += 1
 
-        print(neuron.weights)
-        print(neuron.bias)
 
     return neuron, clusteringEvolution
 
@@ -87,13 +89,18 @@ def iterateHebbianTraining(df, neuron, averageByFeature, weightUpdateStep = 1):
 
 
         # Update neuronOutput average considering only the neuronOutputs
-        # triggered up to now   
+        # triggered up to now
         neuronOutputAverage = (index * neuronOutputAverage + neuronOutput) / (index + 1)
+        print('nOA:', neuronOutputAverage)
 
         # Update weights
         for i in range(len(neuron.weights)):
             neuron.weights[i] += weightUpdateStep * (inputs[i] - averageByFeature[i]) * (neuronOutput - neuronOutputAverage)
-        neuron.bias += weightUpdateStep * (neuronOutput - neuronOutputAverage)
+            print('Delta pos', i, ':', weightUpdateStep * (inputs[i] - averageByFeature[i]) * (neuronOutput - neuronOutputAverage))
+        neuron.bias -= weightUpdateStep * (neuronOutput - neuronOutputAverage)
+
+        print(neuron.weights)
+        print(neuron.bias)
 
         # Save classification
         if neuronOutput > 0.5:
@@ -102,6 +109,7 @@ def iterateHebbianTraining(df, neuron, averageByFeature, weightUpdateStep = 1):
         else:
             classifications.append(1)
             has1 = True
+
 
     if has1 and has2:
         return silhouette_score(df, classifications)
@@ -113,7 +121,7 @@ def main():
     # Load and show dataset
     df = pd.read_csv('../data/Aula3-dataset_1.csv')
     #df = pd.read_csv('../data/test.csv')
-    df = df.sample(frac=1).reset_index(drop=True)
+    #df = df.sample(frac=1).reset_index(drop=True)
     #print(silhouette_score(df.iloc[:, :-1], df.iloc[:, -1]))
     #exit()
 
