@@ -137,6 +137,7 @@ def main():
     # Read csv file to dataframe
     df = pd.read_csv('../data/Aula3-dataset_1.csv')
 
+    # Plot data
     sns.pairplot(df, hue=df.columns[-1])
     plt.title('Dataset1 - True')
     plt.show(block=True)

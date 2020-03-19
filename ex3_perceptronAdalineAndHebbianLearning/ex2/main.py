@@ -1,6 +1,7 @@
 import pandas as pd
 import random as rd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 import inc.activationFunctions as af
 from inc.perceptron import Perceptron
@@ -132,6 +133,10 @@ def main():
     # Read csv file to dataframe
     df = pd.read_csv('../data/Aula3-dataset_1.csv')
 
+    # Plot data
+    sns.pairplot(df, hue=df.columns[-1])
+    plt.title('Dataset1 - True')
+    plt.show(block=True)
 
     # Perceptron
     # Training
@@ -146,7 +151,7 @@ def main():
     plt.xlabel('Iteration')
     plt.ylabel('Relative error')
     plt.title('Dataset1 - Perceptron')
-    plt.show()
+    plt.show(block=True)
 
 
     # Adaline
@@ -158,7 +163,7 @@ def main():
     plt.xlabel('Iteration')
     plt.ylabel('Relative error')
     plt.title('Dataset1 - Adaline')
-    plt.show()
+    plt.show(block=True)
 
     # Dataset 2
     # Read csv file to dataframe
@@ -173,7 +178,7 @@ def main():
     plt.xlabel('Iteration')
     plt.ylabel('Relative error')
     plt.title('Dataset2 - Perceptron')
-    plt.show()
+    plt.show(block=True)
 
     # Adaline
     # Training
@@ -184,7 +189,7 @@ def main():
     plt.xlabel('Iteration')
     plt.ylabel('Relative error')
     plt.title('Dataset2 - Adaline')
-    plt.show()
+    plt.show(block=True)
 
 
 if __name__ == '__main__':
